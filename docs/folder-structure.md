@@ -3,7 +3,7 @@
 > **Document Type:** Application Folder and Code Organization
 > Specification\
 > **Product:** CoachDesk --- Coaching Management System\
-> **Backend:** Laravel 12\
+> **Backend:** Laravel 13\
 > **Frontend:** Vue 3 + Composition API + `<script setup>` + TypeScript
 > (preferred)\
 > **Build Tool:** Vite\
@@ -605,7 +605,7 @@ endpoints. - Dashboard endpoints. - Resource CRUD endpoints. - Search,
 filtering, and pagination endpoints. - Trash, Restore, and Force Delete
 endpoints for eligible resources. - Media upload/download endpoints.
 
-Laravel 12 projects may need API routing to be enabled during setup.
+Laravel 13 projects may need API routing to be enabled during setup.
 Confirm the actual project configuration before creating or modifying
 route files.
 
@@ -690,7 +690,7 @@ versions.
 
 ### 9.2 `bootstrap/app.php`
 
-Laravel 12 application bootstrap configuration, including middleware and
+Laravel 13 application bootstrap configuration, including middleware and
 route configuration where needed.
 
 ### 9.3 `storage/`

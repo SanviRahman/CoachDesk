@@ -2,7 +2,7 @@
 
 > **Document:** Agent Operating Rules\
 > **Project:** CoachDesk --- Coaching Management System\
-> **Backend:** Laravel 12 + PHP + MySQL\
+> **Backend:** Laravel 13 + PHP + MySQL\
 > **Frontend:** Vue 3 + Composition API + `<script setup>` + TypeScript
 > (preferred) + Vite\
 > **UI:** AdminLTE\
@@ -364,7 +364,7 @@ Verify as relevant:
 -   Spatie Laravel Permission compatibility
 -   Spatie Laravel Media Library compatibility
 
-The documented baseline is Laravel 12, Vue 3, and MySQL. The actual
+The documented baseline is Laravel 13, Vue 3, and MySQL. The actual
 project configuration takes precedence for compatibility decisions.
 
 Do not: - Guess package versions. - Install packages without checking

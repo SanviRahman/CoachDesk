@@ -3,7 +3,7 @@
 > **Document Type:** Database Design / ERD\
 > **Product:** CoachDesk --- Coaching Management System\
 > **Database:** MySQL\
-> **Backend:** Laravel 12 + Eloquent ORM\
+> **Backend:** Laravel 13 + Eloquent ORM\
 > **Source Documents:** `project-overview.md` and `PRD.md` supplied for
 > this project\
 > **Status:** Initial logical ERD --- proposed schema, to be finalized

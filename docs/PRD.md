@@ -3,7 +3,7 @@
 > **Document Type:** Product Requirements Document\
 > **Product Name:** CoachDesk\
 > **Product:** Coaching Management System\
-> **Backend:** Laravel 12 + PHP\
+> **Backend:** Laravel 13 + PHP\
 > **Frontend:** Vue 3 + Composition API + `<script setup>` + TypeScript
 > (preferred)\
 > **Database:** MySQL\
@@ -33,7 +33,7 @@ teacher profiles, enrolments, class schedules, attendance, fees,
 invoices, payments, announcements, learning materials, exams, results,
 dashboards, and reports.
 
-The system will use **Laravel 12 as the backend** and **Vue 3 as the
+The system will use **Laravel 13 as the backend** and **Vue 3 as the
 frontend**. Laravel will expose versioned REST APIs and remain
 responsible for authentication, authorization, validation, business
 rules, database operations, and media access. Vue will provide the
@@ -241,7 +241,7 @@ be finalized before implementation.
   -----------------------------------------------------------------------
   Layer                   Technology              Requirement
   ----------------------- ----------------------- -----------------------
-  Backend                 Laravel 12              API, business logic,
+  Backend                 Laravel 13              API, business logic,
                                                   validation,
                                                   authentication
 

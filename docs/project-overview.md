@@ -2,7 +2,7 @@
 
 > **Project Type:** Small, modular coaching-centre management
 > application\
-> **Backend:** Laravel 12 + PHP + MySQL\
+> **Backend:** Laravel 13 + PHP + MySQL\
 > **Frontend:** Vue 3 + Composition API + TypeScript (preferred) + Vite\
 > **Admin UI:** AdminLTE\
 > **API Communication:** Axios + Laravel REST API\
@@ -84,7 +84,7 @@ as its main authorization system.
   -----------------------------------------------------------------------
   Layer                   Technology              Responsibility
   ----------------------- ----------------------- -----------------------
-  Backend                 Laravel 12              Business logic, API,
+  Backend                 Laravel 13              Business logic, API,
                                                   validation,
                                                   authentication
 
@@ -132,7 +132,7 @@ as its main authorization system.
 
 ### Version and Package Compatibility Rule
 
-Laravel 12 and Vue 3 are the project baseline. Before installing any
+Laravel 13 and Vue 3 are the project baseline. Before installing any
 dependency, inspect the actual `composer.json`, `package.json`, PHP
 version, Node.js version, and package compatibility.
 
