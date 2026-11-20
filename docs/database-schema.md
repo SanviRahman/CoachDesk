@@ -76,7 +76,7 @@ recommendation and can be reviewed before migrations.
   ------------------------------------------------------------------------------------
                      \# Table                    Purpose             Soft Delete
   --------------------- ------------------------ ------------------- -----------------
-                      1 `users`                  Authentication and  Optional; confirm
+                      1 `users`                  Authentication and  Yes; approved
                                                  common account data 
 
                       2 `student_profiles`       Student-specific    Yes, planned
@@ -125,8 +125,10 @@ recommendation and can be reviewed before migrations.
                                                  results; advanced   
                                                  planned module      
 
-                Package `roles`, `permissions`,  Spatie Laravel      Package-managed
-                        pivots                   Permission          
+                Package `roles`, `permissions`,  Spatie Laravel      Package-managed base
+                        pivots                   Permission          schema; CoachDesk
+                                                                       adds `deleted_at` to
+                                                                       `roles` and `permissions`
 
                 Package `media`                  Spatie Laravel      Package-managed
                                                  Media Library       
@@ -158,8 +160,10 @@ recommendation and can be reviewed before migrations.
                                                                        verification is
                                                                        enabled
 
-  `status`              VARCHAR(30)                   No DEFAULT       Proposed:
-                                                         `active`      `active`,
+  `status`              VARCHAR(30)                   No DEFAULT       Implemented by
+                                                         `active`      the user-status
+                                                                       migration;
+                                                                       `active` or
                                                                        `inactive`
 
   `remember_token`      VARCHAR(100)                 Yes               Laravel
@@ -169,9 +173,8 @@ recommendation and can be reviewed before migrations.
 
   `updated_at`          TIMESTAMP                    Yes               
 
-  `deleted_at`          TIMESTAMP                    Yes Optional      Only if user
-                                                                       soft deletion is
-                                                                       approved
+  `deleted_at`          TIMESTAMP                    Yes INDEX         SoftDeletes approved
+                                                                       for user accounts
   -------------------------------------------------------------------------------------
 
 **Relationships** - Has one optional `student_profiles` record. - Has
@@ -181,7 +184,10 @@ through `created_by_user_id`. - Has many learning materials through
 `uploaded_by_user_id`. - May own media through Spatie Media Library.
 
 **Important:** Super Admin, Admin, Teacher, Accountant, and Student are
-roles---not values in a fixed `users.role` column.
+roles---not values in a fixed `users.role` column. User accounts use Laravel
+SoftDeletes. A soft-deleted account is excluded from normal Eloquent queries
+and authentication; its unique email remains reserved until the account is
+restored or permanently deleted through an authorized workflow.
 
 ------------------------------------------------------------------------
 
@@ -918,11 +924,7 @@ compatible package version.
   `model_has_permissions`   Polymorphic direct permission assignments
   `role_has_permissions`    Role-to-permission pivot
 
-**Rules** - Use the official package migrations. - Configure the correct
-guard for the Laravel authentication model. - Do not add a manual
-`role_id` or `role` field to `users`. - The initial authenticated model
-is `App\Models\User`. - Do not manually alter package tables without a
-documented compatibility reason.
+**Rules** - Use the official package migrations for the base schema. - Configure the correct guard for the Laravel authentication model. - Do not add a manual `role_id` or `role` field to `users`. - The initial authenticated model is `App\Models\User`. - CoachDesk extends Spatie's Role and Permission models with Laravel `SoftDeletes` and points `config/permission.php` to those custom models. - Add `deleted_at` to `roles` and `permissions` through a separate additive CoachDesk migration; never edit the vendor migration. - The Super Admin role and core `users.*`, `roles.*`, and `permissions.*` access-control permissions are protected. Custom roles with assigned user accounts and permissions assigned to non-Super-Admin roles or direct users cannot be trashed or force-deleted.
 
 ## 4.2 Spatie Laravel Media Library
 
@@ -1356,3 +1358,18 @@ has been created or that an open decision has been approved.
 **Database principle:** Build a relational schema that supports
 CoachDesk's required workflows, preserves financial and academic
 history, and can be implemented incrementally with Laravel migrations.
+
+## RBAC Soft Delete Addendum (2026-11-20)
+
+The project owner approved Trash/Restore/Force Delete support for User accounts, custom Roles, and eligible Permissions.
+
+- `users.deleted_at` is managed by the CoachDesk user-status/soft-delete migration.
+- `roles.deleted_at` and `permissions.deleted_at` are added by the additive CoachDesk migration `2026_11_20_140000_add_soft_deletes_to_users_roles_permissions.php`.
+- Keep the base Spatie migration package-owned. Do not edit vendor or published Spatie migration files.
+- `App\Models\Role` extends Spatie Role and uses Laravel `SoftDeletes`.
+- `App\Models\Permission` extends Spatie Permission and uses Laravel `SoftDeletes`.
+- `config/permission.php` points to these custom models.
+- Built-in roles and core `users.*`, `roles.*`, and `permissions.*` access-control permissions are protected.
+- Roles with any assigned account, including a trashed account, cannot be trashed or force-deleted.
+- Permissions assigned to non-Super-Admin roles or directly to users cannot be trashed or force-deleted. Permissions assigned only to Super Admin may be moved to Trash.
+- Unique email, role name, and permission name values remain reserved while the record is in Trash.

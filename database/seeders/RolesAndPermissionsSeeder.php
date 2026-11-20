@@ -5,8 +5,8 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+use App\Models\Permission;
+use App\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 class RolesAndPermissionsSeeder extends Seeder
@@ -23,6 +23,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'users.update',
             'users.status.update',
             'users.roles.assign',
+            'users.delete',
+            'users.restore',
+            'users.force_delete',
 
             'categories.view',
             'categories.create',
@@ -116,11 +119,15 @@ class RolesAndPermissionsSeeder extends Seeder
             'roles.create',
             'roles.update',
             'roles.delete',
+            'roles.restore',
+            'roles.force_delete',
 
             'permissions.view',
             'permissions.create',
             'permissions.update',
             'permissions.delete',
+            'permissions.restore',
+            'permissions.force_delete',
             'permissions.assign',
 
             'settings.view',
@@ -128,14 +135,18 @@ class RolesAndPermissionsSeeder extends Seeder
         ];
 
         foreach ($permissionNames as $permissionName) {
-            Permission::firstOrCreate([
+            $permission = Permission::withTrashed()->firstOrCreate([
                 'name' => $permissionName,
                 'guard_name' => 'web',
             ]);
+
+            if ($permission->trashed()) {
+                $permission->restore();
+            }
         }
 
         $rolePermissions = [
-            'Super Admin' => $permissionNames,
+            'Super Admin' => Permission::query()->where('guard_name', 'web')->pluck('name')->all(),
 
             'Admin' => array_values(array_diff(
                 $permissionNames,
@@ -143,11 +154,14 @@ class RolesAndPermissionsSeeder extends Seeder
                     'roles.create',
                     'roles.update',
                     'roles.delete',
+                    'roles.restore',
+                    'roles.force_delete',
                     'permissions.create',
                     'permissions.update',
                     'permissions.delete',
+                    'permissions.restore',
+                    'permissions.force_delete',
                     'permissions.assign',
-                    'users.roles.assign',
                     'settings.manage',
                 ]
             )),
@@ -215,21 +229,29 @@ class RolesAndPermissionsSeeder extends Seeder
         ];
 
         foreach ($rolePermissions as $roleName => $permissions) {
-            $role = Role::firstOrCreate([
+            $role = Role::withTrashed()->firstOrCreate([
                 'name' => $roleName,
                 'guard_name' => 'web',
             ]);
 
+            if ($role->trashed()) {
+                $role->restore();
+            }
+
             $role->syncPermissions($permissions);
         }
 
-        $superAdmin = User::firstOrCreate(
+        $superAdmin = User::withTrashed()->firstOrCreate(
             ['email' => 'admin@gmail.com'],
             [
                 'name' => 'Super Admin',
                 'password' => Hash::make('password'),
             ]
         );
+
+        if ($superAdmin->trashed()) {
+            $superAdmin->restore();
+        }
 
         $superAdmin->syncRoles(['Super Admin']);
 

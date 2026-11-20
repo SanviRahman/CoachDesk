@@ -7,6 +7,7 @@ export interface AuthUser {
     id: number;
     name: string;
     email: string;
+    status: 'active' | 'inactive';
     roles: string[];
     permissions: string[];
 }
@@ -26,6 +27,14 @@ export const useAuthStore = defineStore('auth', () => {
     const user = ref<AuthUser | null>(null);
     const initialized = ref(false);
     const isAuthenticated = computed(() => user.value !== null);
+
+    function can(permission: string): boolean {
+        return user.value?.permissions.includes(permission) ?? false;
+    }
+
+    function canAny(permissions: string[]): boolean {
+        return permissions.some((permission) => can(permission));
+    }
 
     async function fetchUser(): Promise<boolean> {
         try {
@@ -67,6 +76,8 @@ export const useAuthStore = defineStore('auth', () => {
         user,
         initialized,
         isAuthenticated,
+        can,
+        canAny,
         fetchUser,
         login,
         logout,

@@ -502,11 +502,7 @@ the requested feature.
 
 Spatie package tables are package-managed.
 
-For Spatie Laravel Permission: - Use the official migration
-generated/published by the compatible installed package. - Do not
-manually recreate `roles`, `permissions`, `model_has_roles`,
-`model_has_permissions`, or `role_has_permissions`. - Verify the guard
-and morph-key configuration.
+For Spatie Laravel Permission: - Use the official migration generated/published by the compatible installed package. - Do not manually recreate `roles`, `permissions`, `model_has_roles`, `model_has_permissions`, or `role_has_permissions`. - Verify the guard and morph-key configuration. - CoachDesk extends the package Role and Permission models with Laravel SoftDeletes and points `config/permission.php` to those custom models. - Add `deleted_at` through a separate additive CoachDesk migration; never edit vendor files or the package-published migration. - Soft-deleted roles must not be assigned to users; soft-deleted permissions must not be assigned to roles or users. - Keep the Super Admin role and core `users.*`, `roles.*`, and `permissions.*` access-control permissions protected.
 
 For Spatie Laravel Media Library: - Use the package's migration for
 `media`. - Treat `model_type` and `model_id` as a polymorphic
@@ -555,8 +551,6 @@ Do not guess or silently finalize these decisions:
 -   Exact invoice/installment and payment rules.
 -   Announcement audience target types.
 -   Learning-material visibility scope.
--   Whether user accounts need SoftDeletes or deactivation is
-    sufficient.
 -   Which announcements and learning materials use SoftDeletes.
 -   Exam retakes/attempts and grading rules.
 -   Exact media conversions and sizes.
@@ -568,17 +562,15 @@ implementing the affected schema or business logic.
 
 ## 9. Soft Delete, Trash, Restore, and Force Delete
 
-This workflow is required only for approved eligible models.
+This workflow is required only for approved eligible models. User accounts, custom Spatie Role records, and eligible non-core Permission records are approved to use Laravel SoftDeletes; the `users`, `roles`, and `permissions` tables include `deleted_at`. Spatie's package migration remains package-owned; CoachDesk adds the RBAC columns with an additive migration.
 
 ### 9.1 Eligible Models
 
-The current documents plan Soft Delete, Restore, and Force Delete for: -
-Categories - Sub-categories - Courses - Batches - Student profiles -
-Teacher profiles - Users, only if user SoftDeletes is approved - Other
-approved master/content records
+The current documents plan Soft Delete, Restore, and Force Delete for: - Categories - Sub-categories - Courses - Batches - Student profiles - Teacher profiles - Users - Unassigned custom roles - Eligible non-core permissions that are not assigned to non-Super-Admin roles or directly to users. The project owner approved Users, Roles, and Permissions Trash support on 2026-11-20.
 
-Announcements and learning materials are optional and require
-confirmation.
+Announcements and learning materials are optional and require confirmation.
+
+The `Super Admin` role and core access-control permissions in the `users`, `roles`, and `permissions` groups must never be trashed or force-deleted. Built-in roles cannot be renamed or deleted. A role with any assigned account, including a soft-deleted account, cannot be trashed or force-deleted. A permission assigned to a non-Super-Admin role or directly to a user cannot be trashed or force-deleted. Newly created and restored permissions are granted to the Super Admin role.
 
 Enrolment SoftDeletes remain undecided.
 

@@ -120,6 +120,8 @@ coachdesk/
 │   │
 │   ├── Models/
 │   │   ├── User.php
+│   │   ├── Role.php (Spatie Role extension with SoftDeletes)
+│   │   ├── Permission.php (Spatie Permission extension with SoftDeletes)
 │   │   ├── StudentProfile.php
 │   │   ├── TeacherProfile.php
 │   │   ├── Category.php
@@ -523,7 +525,9 @@ Suggested modules:
   ----------------------- -------------------------------------------
   `auth/`                 Login, password, authenticated screens
   `dashboard/`            Role-specific dashboards
-  `users/`                User management
+  `users/`                User management, role assignment, account status, and Trash/Restore/Force Delete
+  `roles/`                Role CRUD, permission assignment, and Trash/Restore/Force Delete
+  `permissions/`          Permission catalogue, group/guard filters, and Trash/Restore/Force Delete
   `categories/`           Category CRUD and Trash
   `sub-categories/`       Sub-category CRUD and Trash
   `courses/`              Course CRUD and media
@@ -863,3 +867,44 @@ against the actual project environment.
 **Folder principle:** Keep Laravel backend code, Vue feature modules,
 shared frontend infrastructure, and project documentation clearly
 separated. Create only what the current milestone needs.
+
+## RBAC and Admin Management Additions (2026-11-20)
+
+```text
+app/
+├── Models/
+│   ├── User.php
+│   ├── Role.php
+│   └── Permission.php
+├── Http/
+│   ├── Controllers/Api/V1/
+│   │   ├── UserController.php
+│   │   ├── RoleController.php
+│   │   └── PermissionController.php
+│   ├── Requests/Api/V1/
+│   │   ├── Users/BulkUserActionRequest.php
+│   │   ├── Roles/BulkRoleActionRequest.php
+│   │   └── Permissions/BulkPermissionActionRequest.php
+│   └── Resources/Api/V1/
+│       ├── Users/UserResource.php
+│       ├── Roles/RoleResource.php
+│       └── Permissions/PermissionResource.php
+
+database/
+├── migrations/
+│   └── 2026_11_20_140000_add_soft_deletes_to_users_roles_permissions.php
+└── seeders/
+    └── RolesAndPermissionsSeeder.php
+
+resources/js/
+├── modules/
+│   ├── users/pages/UserIndex.vue
+│   ├── users/pages/UserTrash.vue
+│   ├── roles/pages/RoleIndex.vue
+│   ├── roles/pages/RoleTrash.vue
+│   ├── permissions/pages/PermissionIndex.vue
+│   └── permissions/pages/PermissionTrash.vue
+└── views/TrashOverviewView.vue
+```
+
+All Admin/User, Role, and Permission pages are Vue SPA pages. Blade remains the minimal SPA entry point. CRUD, filters, pagination, Trash, Restore, Force Delete, and bulk actions use Axios and do not trigger a full document reload.

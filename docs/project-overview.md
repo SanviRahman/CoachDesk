@@ -447,6 +447,8 @@ users.view
 users.create
 users.update
 users.delete
+users.restore
+users.force_delete
 
 categories.view
 categories.create
@@ -492,7 +494,15 @@ roles.view
 roles.create
 roles.update
 roles.delete
+roles.restore
+roles.force_delete
 
+permissions.view
+permissions.create
+permissions.update
+permissions.delete
+permissions.restore
+permissions.force_delete
 permissions.assign
 settings.manage
 ```
@@ -861,8 +871,8 @@ All Admin Panel and Vue-managed frontend CRUD workflows must be asynchronous:
 -   Attendance summaries
 -   Fee invoices and partial payments
 -   Dashboard statistics
--   Soft delete, restore, and force delete for eligible admin-managed records
--   Dedicated Trash view with separate Active and Trashed records
+-   Soft delete, restore, and force delete for eligible admin-managed records, including users, unassigned custom roles, and eligible non-core permissions
+-   Dedicated Trash views for users, roles, and permissions with separate Active and Trashed records
 -   No full page reload for Admin Panel or Vue-managed frontend CRUD/forms
 -   CSV export for selected reports
 -   Responsive AdminLTE dashboard
@@ -885,7 +895,7 @@ The Admin Panel must provide a complete record-recovery workflow for eligible mo
 - Authorized admins can permanently delete a trashed record after an explicit confirmation.
 
 **Suggested module coverage**
-- Soft delete + restore + force delete: categories, sub-categories, courses, batches, students, teachers, users, and other eligible master/content records.
+- Soft delete + restore + force delete: categories, sub-categories, courses, batches, students, teachers, users, unassigned custom roles, and eligible non-core permissions. User, Role, and Permission Trash support was approved on 2026-11-20; `users`, `roles`, and `permissions` include `deleted_at`.
 - Historical/financial records such as payments, invoices, attendance records, and published exam results must be protected from casual permanent deletion. Use cancellation, voiding, correction, or archival workflows where appropriate.
 - If a record has dependent or historically important records, the backend must block force deletion unless a specifically approved business rule allows it.
 
@@ -910,7 +920,7 @@ students.restore
 students.force_delete
 ```
 
-Follow the same naming pattern for other eligible modules. Only authorized roles should see or execute the relevant actions. Laravel must enforce the permission on the API endpoint; hiding a button in Vue is not sufficient.
+Follow the same naming pattern for other eligible modules. Users, roles, and permissions have separate delete, restore, and force-delete permissions. The Super Admin role and core `users.*`, `roles.*`, and `permissions.*` access-control permissions are protected. Built-in roles cannot be renamed or deleted. A role with any assigned user account cannot be trashed or permanently deleted. A permission assigned to a non-Super-Admin role or directly to a user cannot be trashed or permanently deleted. New and restored permissions are granted to the Super Admin role. Only authorized roles should see or execute the relevant actions. Laravel must enforce the permission on the API endpoint; hiding a button in Vue is not sufficient.
 
 **Frontend behavior**
 - Trash, Restore, and Force Delete actions use Axios and must not reload the page.

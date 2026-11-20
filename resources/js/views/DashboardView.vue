@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 
 const auth = useAuthStore();
-const router = useRouter();
-const loggingOut = ref(false);
-const logoutError = ref('');
+const primaryRole = computed(() => auth.user?.roles[0] ?? 'Member');
 
 const summaryCards = [
     { label: 'Students', value: '0', icon: 'bi-people', color: 'text-primary' },
@@ -14,73 +11,40 @@ const summaryCards = [
     { label: 'Courses', value: '0', icon: 'bi-journal-bookmark', color: 'text-warning' },
     { label: 'Batches', value: '0', icon: 'bi-collection', color: 'text-danger' },
 ];
-
-async function logout(): Promise<void> {
-    loggingOut.value = true;
-    logoutError.value = '';
-
-    try {
-        await auth.logout();
-        await router.replace({ name: 'login' });
-    } catch {
-        logoutError.value = 'Unable to sign out. Please try again.';
-    } finally {
-        loggingOut.value = false;
-    }
-}
 </script>
 
 <template>
-    <div class="app-wrapper">
-        <nav class="app-header navbar navbar-expand bg-body">
-            <div class="container-fluid">
-                <span class="navbar-brand fw-semibold">CoachDesk</span>
-                <div class="d-flex align-items-center gap-3 ms-auto">
-                    <span class="small text-body-secondary">{{ auth.user?.name }}</span>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" :disabled="loggingOut" @click="logout">
-                        <i class="bi bi-box-arrow-right me-1"></i>
-                        {{ loggingOut ? 'Signing out...' : 'Sign out' }}
-                    </button>
-                </div>
-            </div>
-        </nav>
-
-        <main class="app-main">
-            <div class="app-content-header">
-                <div class="container-fluid">
-                    <h3 class="mb-0">Dashboard</h3>
-                </div>
-            </div>
-
-            <div class="app-content">
-                <div class="container-fluid">
-                    <div v-if="logoutError" class="alert alert-danger" role="alert">
-                        {{ logoutError }}
+    <div class="row g-3">
+        <div v-for="card in summaryCards" :key="card.label" class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="dashboard-stat-icon rounded-3 d-flex align-items-center justify-content-center">
+                        <i :class="['bi', card.icon, card.color, 'fs-3']"></i>
                     </div>
-                    <div class="row g-3">
-                        <div v-for="card in summaryCards" :key="card.label" class="col-12 col-sm-6 col-xl-3">
-                            <div class="card h-100">
-                                <div class="card-body d-flex align-items-center gap-3">
-                                    <i :class="['bi', card.icon, card.color, 'fs-2']"></i>
-                                    <div>
-                                        <p class="text-body-secondary mb-1">{{ card.label }}</p>
-                                        <h3 class="mb-0">{{ card.value }}</h3>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card mt-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Welcome, {{ auth.user?.name }}</h5>
-                            <p class="card-text mb-0">
-                                You are signed in to CoachDesk.
-                            </p>
-                        </div>
+                    <div>
+                        <p class="text-body-secondary mb-1">{{ card.label }}</p>
+                        <h3 class="mb-0 fw-semibold">{{ card.value }}</h3>
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4">
+            <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+                <div>
+                    <h5 class="card-title fw-semibold mb-2">
+                        Welcome back, {{ auth.user?.name }}!
+                    </h5>
+                    <p class="text-body-secondary mb-0">
+                        You are signed in to CoachDesk and your workspace is ready.
+                    </p>
+                </div>
+                <span class="badge bg-primary-subtle text-primary px-3 py-2">
+                    {{ primaryRole }}
+                </span>
+            </div>
+        </div>
     </div>
 </template>

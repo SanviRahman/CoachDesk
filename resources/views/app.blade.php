@@ -7,7 +7,7 @@
     <title>CoachDesk</title>
     @vite(['resources/css/app.css', 'resources/js/app.ts'])
 </head>
-<body>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
     <div id="app"></div>
 </body>
 </html>

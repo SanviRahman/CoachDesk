@@ -211,7 +211,7 @@ model using `model_type` and `model_id`. - `model_has_permissions`
 assigns direct permissions to a model using `model_type` and
 `model_id`. - In the initial application, the authenticated model is
 Laravel's `User`. - Use the package migrations and configuration for the
-installed compatible version.
+installed compatible version. CoachDesk extends the package Role and Permission models with Laravel `SoftDeletes`, configures those custom models in `config/permission.php`, and adds `deleted_at` through a separate additive migration. The package-owned base migration is not modified. Built-in roles and core access-control permissions are protected; custom roles with assigned users and permissions assigned to non-Super-Admin roles or direct users cannot be trashed or force-deleted.
 
 **Spatie Laravel Media Library** - `media` stores media metadata. -
 Media is connected to owning Eloquent models through the package's
@@ -250,9 +250,9 @@ Purpose: Authentication account and common user identity.
                                                             verification is
                                                             enabled
 
-  `status`              VARCHAR / ENUM                      Active or
-                                                            inactive account
-                                                            state
+  `status`              VARCHAR(30)       DEFAULT active    Implemented;
+                                                            active or inactive
+                                                            account state
 
   `remember_token`      VARCHAR(100) NULL                   Laravel
                                                             authentication
@@ -262,9 +262,9 @@ Purpose: Authentication account and common user identity.
 
   `updated_at`          TIMESTAMP                           Laravel timestamp
 
-  `deleted_at`          TIMESTAMP NULL    Optional          Only if user soft
-                                                            deletion is
-                                                            approved
+  `deleted_at`          TIMESTAMP NULL    Yes               User SoftDeletes
+                                                            approved on
+                                                            2026-11-20
   ---------------------------------------------------------------------------
 
 **Relationships** - Has an optional one-to-one student profile. - Has an
@@ -275,7 +275,8 @@ Spatie Media Library.
 
 A user may have a role such as Super Admin, Admin, Teacher, Accountant,
 or Student. Role definitions are not stored as a fixed `role` column in
-`users`.
+`users`. User accounts use Laravel SoftDeletes; the unique email remains
+reserved while an account is in Trash.
 
 ### 4.2 `student_profiles`
 
@@ -949,10 +950,17 @@ Soft deletion must be applied only to approved models.
                                                  dependency     batch/history
                                                  check          
 
-  Users            Optional       Optional       Strict         Account and profile
-                                                 permission +   dependencies
-                                                 dependency     
-                                                 check          
+  Users            Yes            Yes            Strict         Account, profile, media,
+                                                 permission +   and activity dependencies
+                                                 dependency
+                                                 check
+
+  Custom Roles     Yes            Yes            Assignment     Custom roles only; no
+                                                 checks         assigned user accounts
+
+  Eligible         Yes            Yes            Assignment     Non-core permissions
+  Permissions                                     checks         only; no non-Super-Admin
+                                                                role or direct user assignment
 
   Enrolments       To be decided  To be decided  Not generic    Enrolment history and
                                                                 financial/attendance
@@ -1243,3 +1251,15 @@ or implementation is implied by this document.
 understandable, and aligned with the coaching-centre workflow. Preserve
 financial and academic history, and finalize all open decisions before
 migrations.
+
+## RBAC Soft Delete Addendum (2026-11-20)
+
+CoachDesk now supports Soft Delete, Trash, Restore, and Force Delete for user accounts, unassigned custom roles, and eligible non-core permissions.
+
+- The base Spatie `roles` and `permissions` tables remain created by the installed package migrations.
+- CoachDesk uses `App\Models\Role` and `App\Models\Permission`, each extending the corresponding Spatie model and using Laravel `SoftDeletes`.
+- An additive CoachDesk migration adds `deleted_at` to `roles` and `permissions`; do not modify package-owned migration files.
+- The `Super Admin` role, all built-in roles, and core `users.*`, `roles.*`, and `permissions.*` permissions are protected.
+- A role assigned to any user account, including a soft-deleted account, cannot be trashed or force-deleted.
+- A permission assigned to a non-Super-Admin role or directly to a user cannot be trashed or force-deleted. A permission assigned only to Super Admin may be moved to Trash.
+- New and restored permissions are assigned to the Super Admin role. CoachDesk uses the `web` guard; it does not introduce a separate `admin` guard.

@@ -229,6 +229,8 @@ The system shall support the following roles.
                                   settings                                  
   -----------------------------------------------------------------------------------------
 
+Implementation policy: Admin users may assign operational roles (Teacher, Accountant, and Student). Only Super Admin may assign Admin or Super Admin. Built-in role names and the Super Admin role are protected. User accounts can be deactivated through the `status` field or soft-deleted into Trash. On 2026-11-20 the project owner also approved Trash/Restore/Force Delete for unassigned custom roles and eligible non-core permissions, using custom Spatie models with SoftDeletes and an additive migration.
+
 The exact permission set and any narrower record-level access rules must
 be finalized before implementation.
 
@@ -816,6 +818,29 @@ finalized before this module is implemented.
                                       permissions, but backend
                                       authorization shall remain
                                       mandatory.
+
+  FR-RBAC-09                          Custom roles shall support
+                                      soft-delete, Trash, Restore, and
+                                      Force Delete. Built-in roles and
+                                      the Super Admin role are protected.
+
+  FR-RBAC-10                          A role assigned to any user account,
+                                      including a trashed account, shall
+                                      not be moved to Trash or permanently
+                                      deleted.
+
+  FR-RBAC-11                          Eligible non-core permissions shall
+                                      support soft-delete, Trash, Restore,
+                                      and Force Delete. Core access-control
+                                      permissions are protected.
+
+  FR-RBAC-12                          A permission assigned to a non-Super-Admin
+                                      role or directly to a user shall not
+                                      be moved to Trash or permanently
+                                      deleted.
+
+  FR-RBAC-13                          New and restored permissions shall
+                                      be assigned to the Super Admin role.
   -----------------------------------------------------------------------
 
 Permission naming examples:
@@ -864,11 +889,26 @@ payments.verify
 reports.view
 reports.export
 
+users.view
+users.create
+users.update
+users.delete
+users.restore
+users.force_delete
+
 roles.view
 roles.create
 roles.update
 roles.delete
+roles.restore
+roles.force_delete
 
+permissions.view
+permissions.create
+permissions.update
+permissions.delete
+permissions.restore
+permissions.force_delete
 permissions.assign
 settings.manage
 ```
@@ -1040,9 +1080,9 @@ reload.
 
 #### Eligible Record Coverage
 
-Planned for Soft Delete, Restore, and Force Delete subject to
-dependencies: - Categories. - Sub-categories. - Courses. - Batches. -
-Students. - Teachers. - Users. - Other approved master/content records.
+Planned for Soft Delete, Restore, and Force Delete subject to dependencies: - Categories. - Sub-categories. - Courses. - Batches. - Students. - Teachers. - Users. - Unassigned custom roles. - Eligible non-core permissions with no non-Super-Admin role or direct user assignments. - Other approved master/content records.
+
+Project decision (2026-11-20): User accounts, custom roles, and eligible permissions are approved for Laravel SoftDeletes. User email, role name, and permission name remain reserved while the record is in Trash. The Super Admin role, built-in roles, and core `users.*`, `roles.*`, and `permissions.*` access-control permissions are protected. Roles with assigned user accounts and permissions assigned to non-Super-Admin roles or directly to users cannot be trashed or force-deleted.
 
 Protected from casual permanent deletion: - Payments. - Invoices. -
 Attendance records. - Published exam results. - Other historically
@@ -1201,6 +1241,10 @@ Use versioned REST API endpoints under:
 ``` text
 /api/v1/auth/me
 /api/v1/auth/logout
+
+/api/v1/users
+/api/v1/roles
+/api/v1/permissions
 
 /api/v1/dashboard
 
